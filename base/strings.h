@@ -2,10 +2,14 @@
 #include <string.h>
 #include <strings.h>
 
+#define WANT_STRING_SCORECARD 1
+
+namespace base_strings {
+
 //
-//  Lightweight and very-efficient string class
+//  C-with-classes style lightweight and very-efficient string class.
 //  Meant to be used with standard C string functions.
-//  Not meant to offer every imaginable feature. 
+//  Not meant to offer every imaginable feature.
 //  Uses a thread-safe free list for efficient allocation.
 //
 
@@ -44,6 +48,7 @@ public:
 protected:
     char* ensure_room(unsigned);
 
+#if WANT_STRING_SCORECARD
 public:
     // For debugging.
     struct scorecard_o {
@@ -53,6 +58,7 @@ public:
         unsigned n2_free = 0;
     };
     static void scorecard_get(scorecard_o&);
+#endif
 
 public:
     string_o();
@@ -60,3 +66,5 @@ public:
     string_o(const string_o&);
     ~string_o();
 };
+
+};  // namespace base_strings

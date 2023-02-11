@@ -1,7 +1,16 @@
 #include "strings.h"
+#include <stdio.h>
+
+extern bool is_verbose(int n = 1);
+
+// #define X_TRACE(L) 0
+#define X_TRACE(L) { if (is_verbose()) { ::printf L ; } }
+
+using namespace base_strings;
 
 //
 //  Strings of small/normal size are recycled for this string class.
+//  TODO: Could extend this to allocate strings from pages.
 //
 
 struct string_recycler_o {
@@ -14,11 +23,14 @@ struct string_recycler_o {
     recycled_buffer_p p_free = 0;
     string_o::scorecard_o scores; // for debugging
     ~string_recycler_o() {
+        X_TRACE(("TRACE: %p : %p -- list clean up\n", this, p_free));
         auto p_next = p_free;
         p_free = 0;
         while (p_next) {
             auto p = p_next;
             p_next = p->p_next;
+            delete p;
+            X_TRACE(("TRACE: %p : %p -- string clean up free\n", this, p));
         }
     }
     char* buffer_new() {
@@ -26,25 +38,32 @@ struct string_recycler_o {
         if (p_free) {
             auto p = p_free;
             p_free = p->p_next;
+            X_TRACE(("TRACE: %p : %p -- allocate small string from free list\n", this, p));
             return (char*) p;
         } else {
-            return new char[n_size];
+            auto p = new char[n_size];
+            X_TRACE(("TRACE: %p : %p -- allocate small string from memory\n", this, p));
+            return p;
         }
     }
     char* buffer_new(unsigned n) {
         scores.n2_new++;
-        return new char[n + 1];
+        auto p = new char[n + 1];
+        X_TRACE(("TRACE: %p : %p -- allocate small string from memory\n", this, p));
+        return p;
     }
     char* buffer_needed(unsigned n) {
         return ((n_size <= n) ? buffer_new(n) : buffer_new());
     }
     void buffer_free(char* s, unsigned n) {
         if ((n + 1) == n_size) {
+            X_TRACE(("TRACE: %p : %p -- recycle small string\n", this, s));
             scores.n1_free++;
             auto p = (recycled_buffer_p) s;
             p->p_next = p_free;
             p_free = p;
         } else {
+            X_TRACE(("TRACE: %p : %p -- free large string\n", this, s));
             scores.n2_free++;
             delete s;
         }

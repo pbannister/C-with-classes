@@ -1,10 +1,17 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <getopt.h>
 
+#include <pthread.h>
+
 #include "base/strings.h"
+#include "base/threads.h"
+#include "base/clocks.h"
+
+using namespace base_strings;
+using namespace base_threads;
+using namespace base_clocks;
 
 struct options_s {
     int verbose;
@@ -12,7 +19,7 @@ struct options_s {
     0  //
 };
 
-bool is_verbose(unsigned n = 1) {
+bool is_verbose(int n = 1) {
     return n <= g_options.verbose;
 }
 
@@ -144,28 +151,63 @@ bool test_1() {
 
     ::printf("s1 = `%s`\n", s1.buffer_get());
 
+    {
+        string_o::scorecard_get(sc1);
+        string_o a1[20];
+        for (auto i = 0; i < 20; ++i) {
+            a1[i] = "1999";
+            a1[i].strcat(s1);
+        }
+        string_o::scorecard_get(sc2);
+        ASSERT_IF(bump_is(sc1, sc2, 20, 0, 0, 0));
+    }
+    string_o::scorecard_get(sc2);
+    ASSERT_IF(bump_is(sc1, sc2, 20, 20, 0, 0));
+    {
+        string_o::scorecard_get(sc1);
+        string_o a1[20];
+        for (auto i = 0; i < 20; ++i) {
+            a1[i] = "1999";
+            a1[i].strcat(s1);
+        }
+    }
+    string_o::scorecard_get(sc2);
+    ASSERT_IF(bump_is(sc1, sc2, 20, 20, 0, 0));
+
     ::printf("\n==== test 1 - done\n");
     checker.report_score();
     return true;
 }
 
-bool perform() {
-    report_scores();
-    for (auto n = 0; n < 10; ++n) {
-        string_o s1;
-        string_o s2("abc");
-        string_o s3;
-        s3.strcpy("1234567890123456789012345678901234567890", 7);
-        for (auto i = 0; i < 20; ++i) {
-            s1.strcpy("123");
-            s2.strcat(".");
-            s2.strcat(s1);
-            s3.strcat("-");
-            s3.strcat(s2, 8);
-            printf("s1: '%s' s2: '%s' s3: '%s'\n", s1.buffer_get(), s2.buffer_get(), s3.buffer_get());
-            report_scores();
+static void* call_test_1(void*) {
+    ::printf("\n#### calling test_1\n");
+    auto ok = test_1();
+    ::printf("\n#### test_1 returns %u\n", ok);
+    return 0;
+}
+
+bool test_2() {
+    ::printf("\n\n=== test_2\n");
+    string_o::scorecard_o sc1;
+    string_o::scorecard_o sc2;
+
+    string_o::scorecard_get(sc1);
+    string_o::scorecard_get(sc2);
+    ASSERT_IF(bump_is(sc1, sc2, 0, 0, 0, 0));
+    {
+        thread_o kid;
+        if (!kid.thread_create(call_test_1, (void*) "kid1")) {
+            return false;
         }
+        ::printf("kid created\n");
+        sleep_ms(1000);
     }
+    ::printf("kid done?\n");
+    sleep_ms(1000);
+    string_o::scorecard_get(sc2);
+    ASSERT_IF(bump_is(sc1, sc2, 0, 0, 0, 0));
+
+    ::printf("\n\n=== test_2 - done\n");
     return true;
 }
 
@@ -174,6 +216,9 @@ int main(int ac, char** av) {
         return 1;
     }
     if (!test_1()) {
+        return 2;
+    }
+    if (!test_2()) {
         return 2;
     }
     report_scores();
