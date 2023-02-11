@@ -195,7 +195,7 @@ bool test_2() {
     string_o::scorecard_get(sc2);
     ASSERT_IF(bump_is(sc1, sc2, 0, 0, 0, 0));
     {
-        thread_o kid;
+        thread_owner_o kid;
         if (!kid.thread_create(call_test_1, (void*) "kid1")) {
             return false;
         }
