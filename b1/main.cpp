@@ -90,7 +90,8 @@ struct samples_o {
 void populate1(std::vector<std::string>& answer, const samples_o& o_samples, unsigned n_want) {
     answer.reserve(n_want);
     for (unsigned n = 0; n < n_want; ++n) {
-        const char* picked = o_samples.sample_pick();
+        // const char* picked = o_samples.sample_pick();
+        std::string picked = o_samples.sample_pick();
         answer.emplace_back(picked);
     }
 }
@@ -112,7 +113,8 @@ typedef std::vector<string_o> vector_of_strings_o;
 void populate2(vector_of_strings_o& answer, const samples_o& o_samples, unsigned n_want) {
     answer.reserve(n_want);
     for (unsigned n = 0; n < n_want; ++n) {
-        const char* picked = o_samples.sample_pick();
+        // const char* picked = o_samples.sample_pick();
+        string_o picked(o_samples.sample_pick());
         answer.emplace_back(picked);
     }
 }
@@ -134,7 +136,6 @@ bool test_1() {
     samples_o o_samples_long(long_options);
     constexpr unsigned n_times = 100;
     constexpr unsigned n_size = 131072;
-    // constexpr unsigned n_size = 10;
     {
         timed_ns_t ns1 = 0;
         ::srand(20220211);

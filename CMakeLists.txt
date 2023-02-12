@@ -16,8 +16,8 @@ include_directories(
     .
 )
 
-add_compile_options(-g)
-add_compile_options(-Og)
+# add_compile_options(-g)
+# add_compile_options(-Og)
 add_compile_options(-Wall)
 add_compile_options(-Wextra)
 add_compile_options(-Wparentheses)
@@ -30,23 +30,18 @@ add_executable(
     base/strings.cpp
     base/threads.cpp
 )
-
 add_executable(
     b0
     b1/populate_optional.cpp
 )
-# c++ -std=c++17 -O3 populate_optional.cpp -o populate_optional -Wall -Wextra -O3 -fno-tree-vectorize
-target_compile_options(
-    b0 PRIVATE 
-    -O3 -fno-tree-vectorize
-)
-
 add_executable(
     b1
     b1/main.cpp
     base/strings.cpp
 )
-target_compile_options(
-    b1 PRIVATE 
-    -O3
-)
+
+target_compile_options(cli PRIVATE -g -Og)
+# target_compile_options(cli PRIVATE -g -O)
+# c++ -std=c++17 -O3 populate_optional.cpp -o populate_optional -Wall -Wextra -O3 -fno-tree-vectorize
+target_compile_options(b0 PRIVATE -O3)
+target_compile_options(b1 PRIVATE -O3)
