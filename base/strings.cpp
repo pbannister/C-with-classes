@@ -1,10 +1,12 @@
 #include "strings.h"
 #include <stdio.h>
+#include <malloc.h>
+#include <stdint.h>
 
 extern bool is_verbose(int n = 1);
 
-// #define X_TRACE(L) 0
-#define X_TRACE(L) { if (is_verbose()) { ::printf L ; } }
+#define X_TRACE(L) {}
+// #define X_TRACE(L) { if (is_verbose()) { ::printf L ; } }
 
 using namespace base_strings;
 
@@ -14,49 +16,87 @@ using namespace base_strings;
 //
 
 struct string_recycler_o {
+    const unsigned n_size_page = (1 << 12);
+    const unsigned n_size_small = (1 << 7);
+
     struct recycled_buffer_o;
     typedef recycled_buffer_o* recycled_buffer_p;
     struct recycled_buffer_o {
         recycled_buffer_p p_next;
     };
-    const unsigned n_size = (1 << 7);
+    
     recycled_buffer_p p_free = 0;
     string_o::scorecard_o scores; // for debugging
+
+    void free_print() {
+        for (auto p = p_free; p; p = p->p_next) {
+            X_TRACE(("TRACE: %p : %p -- string on free list\n", this, p));
+        }
+    }
+
+    void page_add() {
+        auto p1 = (char*) ::pvalloc(n_size_page);
+        auto p3 = p1 + n_size_page;
+        for (auto p2 = p1; p2 < p3; p2 += n_size_small) {
+            auto p = (recycled_buffer_p) p2;
+            p->p_next = p_free;
+            p_free = p;
+        }
+        X_TRACE(("TRACE: %p : %p -- page add\n", this, p1));
+        free_print();
+    }
+
+    string_recycler_o() {
+        page_add();
+    }
+
     ~string_recycler_o() {
         X_TRACE(("TRACE: %p : %p -- list clean up\n", this, p_free));
+        recycled_buffer_p p_pages = 0;
+        unsigned mask = (n_size_page - 1);
         auto p_next = p_free;
         p_free = 0;
         while (p_next) {
             auto p = p_next;
             p_next = p->p_next;
-            delete p;
-            X_TRACE(("TRACE: %p : %p -- string clean up free\n", this, p));
+            if (0 == (mask & (uintptr_t) p)) {
+                p->p_next = p_pages;
+                p_pages = p;
+            }
+            X_TRACE(("TRACE: %p : %p -- string forget\n", this, p));
+        }
+        while (p_pages) {
+            auto p = p_pages;
+            p_pages = p->p_next;
+            ::free(p);
+            X_TRACE(("TRACE: %p : %p -- page free\n", this, p));
         }
     }
+    
     char* buffer_new() {
         scores.n1_new++;
-        if (p_free) {
-            auto p = p_free;
-            p_free = p->p_next;
-            X_TRACE(("TRACE: %p : %p -- allocate small string from free list\n", this, p));
-            return (char*) p;
-        } else {
-            auto p = new char[n_size];
-            X_TRACE(("TRACE: %p : %p -- allocate small string from memory\n", this, p));
-            return p;
+        if (!p_free) {
+            page_add();
         }
+        auto p = p_free;
+        p_free = p->p_next;
+        X_TRACE(("TRACE: %p : %p -- allocate small string from free list\n", this, p));
+        return (char*) p;
     }
+
     char* buffer_new(unsigned n) {
         scores.n2_new++;
         auto p = new char[n + 1];
         X_TRACE(("TRACE: %p : %p -- allocate small string from memory\n", this, p));
         return p;
     }
+    
     char* buffer_needed(unsigned n) {
-        return ((n_size <= n) ? buffer_new(n) : buffer_new());
+        return ((n_size_small <= n) ? buffer_new(n) : buffer_new());
     }
+    
     void buffer_free(char* s, unsigned n) {
-        if ((n + 1) == n_size) {
+        if ((n + 1) == n_size_small) {
             X_TRACE(("TRACE: %p : %p -- recycle small string\n", this, s));
             scores.n1_free++;
             auto p = (recycled_buffer_p) s;
@@ -84,18 +124,18 @@ void string_o::scorecard_get(scorecard_o& o) {
 
 string_o::string_o() {
     p_buffer = recycler.buffer_new();
-    n_room = recycler.n_size - 1;
+    n_room = recycler.n_size_small - 1;
 }
 
 string_o::string_o(const char* s) {
     p_buffer = recycler.buffer_new();
-    n_room = recycler.n_size - 1;
+    n_room = recycler.n_size_small - 1;
     strcpy(s);
 }
 
 string_o::string_o(const string_o& s) {
     p_buffer = recycler.buffer_new();
-    n_room = recycler.n_size - 1;
+    n_room = recycler.n_size_small - 1;
     strcpy(s);
 }
 
