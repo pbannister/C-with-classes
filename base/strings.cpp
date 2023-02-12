@@ -37,7 +37,7 @@ using namespace base_strings;
 
 //
 //  Strings of small/normal size are recycled for this string class.
-//  TODO: Could extend this to allocate strings from pages.
+//  Note this allocates small strings from pages, so less heap traffic.
 //
 
 struct string_recycler_o {
@@ -170,13 +170,18 @@ string_o::~string_o() {
     n_room = 0;
 }
 
-char* string_o::ensure_room(unsigned n) {
+inline char* string_o::ensure_room(unsigned n) {
     if (n <= n_room) {
         return p_buffer;
     }
+    return expand_room(n);
+}
+
+char* base_strings::string_o::expand_room(unsigned n) {
     auto p1 = p_buffer;
     auto p2 = recycler.buffer_new(n);
     ::strcpy(p2, p1);
+    recycler.buffer_free(p_buffer, n_room);
     p_buffer = p2;
     n_room = n;
     return p_buffer;
@@ -207,3 +212,4 @@ void string_o::strcat(const char* s, unsigned n2) {
     ::strncpy(p_buffer + n1, s, n2);
     p_buffer[n1 + n2] = 0;
 }
+
