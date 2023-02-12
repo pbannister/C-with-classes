@@ -25,6 +25,9 @@ public:
     void operator=(const char* s) {
         strcpy(s);
     }
+    void operator=(const string_o& s) {
+        strcpy(s);
+    }
 
 public:
     char* buffer_get() {
@@ -47,6 +50,7 @@ public:
 
 protected:
     char* ensure_room(unsigned);
+    char* expand_room(unsigned);
 
 public:
     // For debugging.
