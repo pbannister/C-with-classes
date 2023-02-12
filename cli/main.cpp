@@ -52,6 +52,7 @@ bool options_get(int ac, char** av) {
 }
 
 void report_scores() {
+#if WANT_STRING_SCORECARD
     string_o::scorecard_o o;
     string_o::scorecard_get(o);
     ::printf(
@@ -59,6 +60,7 @@ void report_scores() {
         "2 new : %8u free : %8u\n",
         o.n1_new, o.n1_free,
         o.n2_new, o.n2_free);
+#endif
 }
 
 struct scores_o {

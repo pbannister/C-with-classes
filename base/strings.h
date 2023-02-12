@@ -2,7 +2,7 @@
 #include <string.h>
 #include <strings.h>
 
-#define WANT_STRING_SCORECARD 1
+#define WANT_STRING_SCORECARD 0
 
 namespace base_strings {
 
@@ -48,7 +48,6 @@ public:
 protected:
     char* ensure_room(unsigned);
 
-#if WANT_STRING_SCORECARD
 public:
     // For debugging.
     struct scorecard_o {
@@ -58,7 +57,6 @@ public:
         unsigned n2_free = 0;
     };
     static void scorecard_get(scorecard_o&);
-#endif
 
 public:
     string_o();
