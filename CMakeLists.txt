@@ -39,9 +39,15 @@ add_executable(
     b1/main.cpp
     base/strings.cpp
 )
+add_executable(
+    b2
+    b2/main.cpp
+    base/strings.cpp
+    samples/samples.cpp
+)
 
 target_compile_options(cli PRIVATE -g -Og)
-# target_compile_options(cli PRIVATE -g -O)
-# c++ -std=c++17 -O3 populate_optional.cpp -o populate_optional -Wall -Wextra -O3 -fno-tree-vectorize
 target_compile_options(b0 PRIVATE -O3)
 target_compile_options(b1 PRIVATE -O3)
+# target_compile_options(b2 PRIVATE -g -Og)
+target_compile_options(b2 PRIVATE -O3)
