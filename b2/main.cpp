@@ -43,7 +43,7 @@ void usage(const char* av0) {
         "\n    -a length    : average string length     = %u"
         "\n    -q pages     : sample pot size in pages  = %u"
         "\n    -d seed      : seed for rand()           = %u"
-        "\n    -v           : verbose                   = %u"
+        "\n    -v           : verbose (repeat for more) = %u"
         "\n",
         av0,
         g_options.n_times,
