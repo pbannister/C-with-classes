@@ -6,6 +6,8 @@
 #include "base/clocks.h"
 #include "samples/samples.h"
 
+#include "version.h"
+
 #include <vector>
 #include <string>
 #include <optional>
@@ -364,6 +366,8 @@ bool test_run(benchmark_o& benchmark) {
 }
 
 int main(int ac, char** av) {
+    ::setbuf(stdout, 0);
+    ::printf("Version: %s branch: %s build: %u\n", VERSION_STAMP, VERSION_BRANCH, VERSION_BUILD);
     if (!options_get(ac, av)) {
         return 1;
     }

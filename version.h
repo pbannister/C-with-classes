@@ -1,0 +1,3 @@
+#define VERSION_BUILD 3
+#define VERSION_STAMP "2023.02.15"
+#define VERSION_BRANCH "master"
