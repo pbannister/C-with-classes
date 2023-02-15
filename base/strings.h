@@ -24,7 +24,7 @@ protected:
     unsigned n_room = 0;
 
 public:
-    operator const char*() const {
+    operator const char*() const noexcept {
         return p_buffer;
     }
     void operator=(const char* s) {
@@ -35,7 +35,7 @@ public:
     }
 
 public:
-    char* buffer_get() {
+    char* buffer_get() noexcept {
         return p_buffer;
     }
     char* buffer_get(unsigned n) {
@@ -43,7 +43,7 @@ public:
     }
 
 public:
-    unsigned strlen() const {
+    unsigned strlen() const noexcept {
         return ::strlen(p_buffer);
     }
 
@@ -58,6 +58,12 @@ protected:
     char* expand_room(unsigned);
 
 public:
+    string_o();
+    string_o(const char*);
+    string_o(const string_o&);
+    ~string_o();
+
+public:
     // For debugging.
     struct scorecard_o {
         unsigned n1_new = 0;
@@ -68,10 +74,20 @@ public:
     static void scorecard_get(scorecard_o&);
 
 public:
-    string_o();
-    string_o(const char*);
-    string_o(const string_o&);
-    ~string_o();
+    class exception_o {
+    public:
+        exception_o(const char* s) {
+            message = s;
+        }
+
+    protected:
+        const char* message;
+
+    public:
+        const char* message_get() {
+            return message;
+        }
+    };
 };
 
 };  // namespace base_strings

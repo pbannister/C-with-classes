@@ -172,7 +172,8 @@ string_o::string_o(const string_o& s) {
 
 string_o::~string_o() {
     if (p_owner != &recycler) {
-        // should complain?
+        // Better alternative?
+        ::printf("string_o dispose by non-owner!\n");
     } else {
         recycler.buffer_free(p_buffer, n_room);
     }
@@ -189,7 +190,7 @@ inline char* string_o::ensure_room(unsigned n) {
 
 char* base_strings::string_o::expand_room(unsigned n) {
     if (p_owner != &recycler) {
-        return 0;  // should complain?
+        throw exception_o("re-allocation of string by non-owner");
     }
     auto p1 = p_buffer;
     auto p2 = recycler.buffer_new(n);
