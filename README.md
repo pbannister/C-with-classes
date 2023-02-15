@@ -1,5 +1,5 @@
 # C-with-classes and strings
-Motivate from Daniel Lemire's post:<br>
+Motive from Daniel Lemire's post:<br>
 https://lemire.me/blog/2023/01/30/move-or-copy-your-strings-possible-performance-impacts/
 
 I have long used C-with-classes style strings, as measurably more efficient:<br>
@@ -10,7 +10,7 @@ But the last time I did a benchmark was 2005, so perhaps things have changed.
 Started with Daniel's benchmark, then changed pretty much everything.
 
 Should add that I had before never needed a multi-thread safe strings class. 
-(Last large code in C++ was early 2000s, the single-threaded.)
+(Last large code in C++ was early 2000s, and single-threaded.)
 Took this as excuse to make use of **thread_local**, so now I have a thread-safe C-with-classes string class.
 
 Using CMake for the build, and VScode for editing. Once built, "-h" will give usage:
@@ -65,8 +65,8 @@ Parameters to test:
 Seems that **std::string** may have finally caught up, and slightly bettered. 
 
 Playing with the parameters cause the results to vary in ways for which I have no immediate explanation.
+(Something wonky around strings in **std::vector**, maybe?)
 Not ready to draw conclusion, other than the (horrid) original **std::string** implementation seems to have been replaced with better.
 
 Only took thirty years? :)
-
 
