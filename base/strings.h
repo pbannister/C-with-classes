@@ -90,4 +90,4 @@ public:
     };
 };
 
-};  // namespace base_strings
+}  // namespace base_strings

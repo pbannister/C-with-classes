@@ -57,7 +57,7 @@ static inline timed_ns_t time_get() {
     return (NS_PER_SECOND * t) + ts.tv_nsec;
 }
 
-};  // namespace clock_realtime
+}  // namespace clock_realtime
 
 //
 //
@@ -66,6 +66,7 @@ static inline timed_ns_t time_get() {
 class elapsed_o {
     timed_ns_t ns1 = 0;
     timed_ns_t ns2 = 0;
+
 public:
     void clock_start() {
         ns1 = ns2 = clock_realtime::time_get();
@@ -90,4 +91,4 @@ public:
     }
 };
 
-};  // namespace base_clocks
+}  // namespace base_clocks
