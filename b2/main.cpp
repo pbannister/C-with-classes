@@ -38,7 +38,7 @@ void usage(const char* av0) {
         "\nUsage: "
         "\n    %s [options]"
         "\nWhere options are:"
-        "\n    -n repeat    : times to repeat tess      = %u"
+        "\n    -n repeat    : repeat tests              = %u"
         "\n    -s count     : number of strings         = %u"
         "\n    -a length    : average string length     = %u"
         "\n    -q pages     : sample pot size in pages  = %u"
