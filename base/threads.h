@@ -7,7 +7,7 @@ namespace base_threads {
 //  C-with-classes style lightweight thread class.
 //  Meant to be used with standard pthread functions.
 //  Not meant to offer every imaginable feature.
-//  Waits for child thread to exit in
+//  Waits for child thread to exit in destructor.
 //  Subclass to specialize.
 //
 

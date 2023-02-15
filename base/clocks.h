@@ -60,7 +60,7 @@ static inline timed_ns_t time_get() {
 }  // namespace clock_realtime
 
 //
-//
+//  Measure of elapsed time.
 //
 
 class elapsed_o {
