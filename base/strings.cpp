@@ -49,26 +49,21 @@ struct string_recycler_o {
             ::printf L;     \
         }                   \
     }
-#define N1_NEW() \
-    { scores.n1_free++; }
-#define N1_FREE() \
-    { scores.n1_free++; }
-#define N2_NEW() \
-    { scores.n2_free++; }
-#define N2_FREE() \
-    { scores.n2_free++; }
+
+#define SCORE_BUMP(W) \
+    { scores.W++; }
 #else
+
 #define X_TRACE(L) \
     {}
-#define N1_NEW() \
-    {}
-#define N1_FREE() \
-    {}
-#define N2_NEW() \
-    {}
-#define N2_FREE() \
+#define SCORE_BUMP(W) \
     {}
 #endif
+
+#define N1_NEW() SCORE_BUMP(n1_new)
+#define N1_FREE() SCORE_BUMP(n1_free)
+#define N2_NEW() SCORE_BUMP(n2_new)
+#define N2_FREE() SCORE_BUMP(n2_free)
 
 void string_recycler_o::free_print() {
     for (auto p = p_free; p; p = p->p_next) {
@@ -156,24 +151,31 @@ void string_o::scorecard_get(scorecard_o& o) {
 }
 
 string_o::string_o() {
+    p_owner = &recycler;  // used only for identity.
     p_buffer = recycler.buffer_new();
     n_room = recycler.n_size_small - 1;
 }
 
 string_o::string_o(const char* s) {
+    p_owner = &recycler;  // used only for identity.
     p_buffer = recycler.buffer_new();
     n_room = recycler.n_size_small - 1;
     strcpy(s);
 }
 
 string_o::string_o(const string_o& s) {
+    p_owner = &recycler;  // used only for identity.
     p_buffer = recycler.buffer_new();
     n_room = recycler.n_size_small - 1;
     strcpy(s);
 }
 
 string_o::~string_o() {
-    recycler.buffer_free(p_buffer, n_room);
+    if (p_owner != &recycler) {
+        // should complain?
+    } else {
+        recycler.buffer_free(p_buffer, n_room);
+    }
     p_buffer = 0;
     n_room = 0;
 }
@@ -186,6 +188,9 @@ inline char* string_o::ensure_room(unsigned n) {
 }
 
 char* base_strings::string_o::expand_room(unsigned n) {
+    if (p_owner != &recycler) {
+        return 0;  // should complain?
+    }
     auto p1 = p_buffer;
     auto p2 = recycler.buffer_new(n);
     ::strcpy(p2, p1);

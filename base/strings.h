@@ -11,9 +11,14 @@ namespace base_strings {
 //  Meant to be used with standard C string functions.
 //  Not meant to offer every imaginable feature.
 //  Uses a thread-safe free list for efficient allocation.
+//  One limitation: cannot re-allocate or free on different thread.
+//  Put differently, disallows re/de-allocation on other threads.
 //
 
 class string_o {
+private:
+    void* p_owner = 0;
+
 protected:
     char* p_buffer = 0;
     unsigned n_room = 0;
