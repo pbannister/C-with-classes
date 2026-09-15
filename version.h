@@ -1,0 +1,3 @@
+#define VERSION_BUILD 71
+#define VERSION_STAMP "2026.09.15"
+#define VERSION_BRANCH "master"

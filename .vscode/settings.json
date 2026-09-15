@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "thread": "cpp",
+        "condition_variable": "cpp",
+        "optional": "cpp",
+        "*.tcc": "cpp",
+        "random": "cpp",
+        "*.inc": "cpp"
+    }
+}
